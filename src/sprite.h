@@ -41,12 +41,11 @@ public:
 
     virtual void render(Renderer &renderer);
 
-    void set_collision_box(Rect collision_box);
-    void render_collision_box(Renderer &renderer, bool is_colliding = false);
-    bool is_colliding(const Sprite &other) const;
-
     float &x();
     float &y();
+
+    float width() const;
+    float height() const;
 
     float &scale_x();
     float &scale_y();
@@ -54,8 +53,6 @@ public:
 protected:
     std::int32_t m_width;
     std::int32_t m_height;
-
-    Rect m_collision_box;
 
     std::int32_t m_image_id;
 

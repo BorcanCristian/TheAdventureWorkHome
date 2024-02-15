@@ -18,15 +18,22 @@ enum SpriteSet
     Death
 };
 
-static constexpr std::int32_t MAX_FRAMES    = 6;
-static constexpr std::int32_t ATTACK_FRAMES = 4;
+static constexpr std::int32_t MAX_FRAMES            = 6;
+static constexpr std::int32_t ATTACK_FRAMES         = 4;
+static constexpr Rect         DEFAULT_COLLISION_BOX = { 15, 30, 19, 14 };
 
 Hero::Hero(Renderer &renderer, Sound &sound)
   : m_sprite{ resource_player, resource_player_size, renderer }
+  , m_sound{ sound }
 {
-    m_sprite.set_collision_box({ 15, 19, 19, 24 });
-    m_sprite.scale_x() *= 2.F;
-    m_sprite.scale_y() *= 2.F;
+    scale_x() *= 2.F;
+    scale_y() *= 2.F;
+
+    width()  = m_sprite.width() / MAX_FRAMES;
+    height() = m_sprite.height() / MAX_FRAMES;
+
+    set_collision_box(DEFAULT_COLLISION_BOX);
+
     m_sprite.set_sprite_set(SpriteSet::IdleDown);
     m_sprite.set_total_frames(MAX_FRAMES);
     m_sprite.set_frame_time(std::chrono::milliseconds{ 100 });
@@ -35,7 +42,7 @@ Hero::Hero(Renderer &renderer, Sound &sound)
         sound.load_sample(resource__07_human_atk_sword_1, resource__07_human_atk_sword_1_size);
 }
 
-void Hero::attack(Sound &sound)
+void Hero::attack()
 {
     m_is_attacking = true;
 
@@ -43,39 +50,62 @@ void Hero::attack(Sound &sound)
     {
     case Orientation::Up: {
         m_sprite.set_sprite_set(SpriteSet::AttackingUp);
+
+        auto cb = DEFAULT_COLLISION_BOX;
+        cb.y -= 10;
+        cb.height += 10;
+        set_collision_box(cb);
+
         break;
     }
     case Orientation::Down: {
         m_sprite.set_sprite_set(SpriteSet::AttackingDown);
+
+        auto cb = DEFAULT_COLLISION_BOX;
+        cb.height += 5;
+        set_collision_box(cb);
+
         break;
     }
     case Orientation::Left: {
         m_sprite.set_sprite_set(SpriteSet::AttackingRight, true);
+
+        auto cb = DEFAULT_COLLISION_BOX;
+        cb.x -= 9;
+        cb.width += 9;
+        set_collision_box(cb);
+
         break;
     }
     case Orientation::Right: {
         m_sprite.set_sprite_set(SpriteSet::AttackingRight);
+
+        auto cb = DEFAULT_COLLISION_BOX;
+        cb.width += 9;
+        set_collision_box(cb);
+
         break;
     }
     }
 
     m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - ATTACK_FRAMES);
     m_sprite.reset();
-    sound.play_sample(m_attack_sound_id);
+    m_sound.play_sample(m_attack_sound_id);
 }
 
-void Hero::update(Game &game, const RenderEvent &event)
+void Hero::update(Game &game, float attenuation)
 {
     if (m_is_attacking && m_sprite.current_frame() == ATTACK_FRAMES - 1)
     {
         m_is_attacking = false;
+        set_collision_box(DEFAULT_COLLISION_BOX);
     }
 
     m_is_moving = false;
 
     if (game.is_key_pressed(KeyCode::Up))
     {
-        m_sprite.y() -= 120.F * event.seconds_elapsed;
+        y() -= 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningUp);
         m_orientation = Orientation::Up;
 
@@ -84,7 +114,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Down))
     {
-        m_sprite.y() += 120.F * event.seconds_elapsed;
+        y() += 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningDown);
         m_orientation = Orientation::Down;
 
@@ -93,7 +123,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Left))
     {
-        m_sprite.x() -= 120.F * event.seconds_elapsed;
+        x() -= 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight, true);
         m_orientation = Orientation::Left;
 
@@ -102,7 +132,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Right))
     {
-        m_sprite.x() += 120.F * event.seconds_elapsed;
+        x() += 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight);
         m_orientation = Orientation::Right;
 
@@ -138,17 +168,22 @@ void Hero::update(Game &game, const RenderEvent &event)
 
 void Hero::render(Renderer &renderer)
 {
+    m_sprite.x() = x();
+    m_sprite.y() = y();
+
+    m_sprite.scale_x() = scale_x();
+    m_sprite.scale_y() = scale_y();
+
     m_sprite.render(renderer);
-    m_sprite.render_collision_box(renderer, m_is_colliding);
 }
 
-const Sprite &Hero::sprite() const
+void Hero::on_key_pressed(const KeyPressEvent &event)
 {
-    return m_sprite;
+    if (event.key_code == KeyCode::Space)
+    {
+        attack();
+    }
 }
 
-bool Hero::is_colliding(const Sprite &sprite)
-{
-    m_is_colliding = m_sprite.is_colliding(sprite);
-    return m_is_colliding;
-}
+void Hero::on_key_released(const KeyReleaseEvent &event)
+{}
