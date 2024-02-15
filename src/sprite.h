@@ -6,6 +6,15 @@
 
 class Sprite
 {
+    public:
+    struct Rect
+    {
+        float x;
+        float y;
+        float width;
+        float height;
+    };
+    
 public:
     Sprite(const std::uint8_t *data, std::size_t size, Renderer &renderer);
 

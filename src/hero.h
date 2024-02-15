@@ -3,10 +3,16 @@
 #include "animated_sprite.h"
 #include "events.h"
 #include "sound.h"
+#include "i_collidable.h"
+#include "i_renderable.h"
+#include "i_input_handler.h"
 
 class Game;
 
 class Hero
+: public IRenderable
+, public IInputHandler
+, public ICollidable
 {
 private:
     enum class Orientation
@@ -21,8 +27,10 @@ public:
     Hero(Renderer &renderer, Sound &sound);
 
     void attack(Sound &sound);
-    void update(Game &game, const RenderEvent &event);
-    void render(Renderer &renderer);
+
+    void update(Game &game, float attenuation = 1.F) override;
+    void handle_input() override;
+    void render(Renderer &renderer) override;
 
 private:
     AnimatedSprite m_sprite;

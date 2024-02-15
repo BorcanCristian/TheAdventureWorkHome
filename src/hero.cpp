@@ -63,7 +63,7 @@ void Hero::attack(Sound &sound)
     sound.play_sample(m_attack_sound_id);
 }
 
-void Hero::update(Game &game, const RenderEvent &event)
+void Hero::update(Game &game, float attenuation)
 {
     if (m_is_attacking && m_sprite.current_frame() == ATTACK_FRAMES - 1)
     {
@@ -74,7 +74,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Up))
     {
-        m_sprite.y() -= 120.F * event.seconds_elapsed;
+        m_sprite.y() -= 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningUp);
         m_orientation = Orientation::Up;
 
@@ -83,7 +83,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Down))
     {
-        m_sprite.y() += 120.F * event.seconds_elapsed;
+        m_sprite.y() += 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningDown);
         m_orientation = Orientation::Down;
 
@@ -92,7 +92,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Left))
     {
-        m_sprite.x() -= 120.F * event.seconds_elapsed;
+        m_sprite.x() -= 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight, true);
         m_orientation = Orientation::Left;
 
@@ -101,7 +101,7 @@ void Hero::update(Game &game, const RenderEvent &event)
 
     if (game.is_key_pressed(KeyCode::Right))
     {
-        m_sprite.x() += 120.F * event.seconds_elapsed;
+        m_sprite.x() += 120.F * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight);
         m_orientation = Orientation::Right;
 
@@ -139,3 +139,6 @@ void Hero::render(Renderer &renderer)
 {
     m_sprite.render(renderer);
 }
+
+void Hero::handle_input()
+{}
