@@ -4,6 +4,8 @@ set (
         "res/characters/player.png"
         "res/characters/slime.png"
         "res/objects/rock_in_water_06.png"
+        "res/objects/bush_01.png"
+        "res/objects/tree_01.png"
         "res/sfx/01_chest_open_1.mp3"
         "res/sfx/02_chest_close_1.mp3"
         "res/sfx/05_door_open_1.mp3"

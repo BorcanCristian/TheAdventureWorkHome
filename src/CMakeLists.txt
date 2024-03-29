@@ -21,6 +21,8 @@ add_executable(
     main.cpp
     map.h
     map.cpp
+    object.h
+    object.cpp
     renderer.h
     renderer.cpp
     slime.cpp

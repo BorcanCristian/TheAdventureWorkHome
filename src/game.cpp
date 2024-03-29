@@ -5,6 +5,7 @@
 #include "i_destroyable.h"
 #include "i_input_handler.h"
 #include "i_renderable.h"
+#include "object.h"
 #include "renderer.h"
 #include "resources.h"
 
@@ -21,6 +22,15 @@ void Game::load_assets(Renderer &renderer)
 
     m_bg_music_id = m_sound.load_music(resource_world_bg, resource_world_bg_size);
     m_sound.play_music(m_bg_music_id);
+
+    auto *tree = new Object{ renderer, 100, 100, resource_tree_01, resource_tree_01_size };
+    m_things.emplace(tree->id(), tree);
+
+    tree = new Object{ renderer, 200, 200, resource_tree_01, resource_tree_01_size };
+    m_things.emplace(tree->id(), tree);
+
+    auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
+    m_things.emplace(bush->id(), bush);
 
     auto *hero       = new Hero{ renderer, m_sound };
     hero->x()        = 500;
@@ -122,6 +132,11 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
                 const auto i_id = collidables[i].first;
                 const auto j_id = collidables[j].first;
 
+                //                auto *ci = collidables[i].second;
+                //                auto *cj = collidables[j].second;
+                //
+                //                if (!ci->allow_passthrough()) {}
+
                 try_attack(i_id, j_id);
                 try_attack(j_id, i_id);
 
@@ -134,15 +149,15 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         }
     }
 
-    //    for (const auto &collidable : colliding)
-    //    {
-    //        collidable->render_collision_box(renderer, true);
-    //    }
-    //
-    //    for (const auto &collidable : not_colliding)
-    //    {
-    //        collidable->render_collision_box(renderer, false);
-    //    }
+    for (const auto &collidable : colliding)
+    {
+        collidable->render_collision_box(renderer, true);
+    }
+
+    for (const auto &collidable : not_colliding)
+    {
+        collidable->render_collision_box(renderer, false);
+    }
 
     fps_timer += event.seconds_elapsed;
     total_seconds_elapsed += event.seconds_elapsed;
