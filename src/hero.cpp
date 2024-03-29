@@ -226,6 +226,7 @@ void Hero::on_key_released(const KeyReleaseEvent &event)
 
 void Hero::take_damage(float damage)
 {
+    std::cout << "Hero took " << damage << " damage. Health: " << m_health << std::endl;
     m_health -= damage;
 }
 

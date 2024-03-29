@@ -5,7 +5,6 @@
 #include "i_destroyable.h"
 #include "i_input_handler.h"
 #include "i_renderable.h"
-#include "i_thing.h"
 #include "renderer.h"
 #include "resources.h"
 
@@ -28,7 +27,7 @@ void Game::load_assets(Renderer &renderer)
     hero->render_x() = hero->x();
     m_things.emplace(hero->id(), hero);
 
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         auto *slime = new Slime{ renderer, m_sound };
         slime->x() += i * 64;
@@ -135,15 +134,15 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         }
     }
 
-    for (const auto &collidable : colliding)
-    {
-        collidable->render_collision_box(renderer, true);
-    }
-
-    for (const auto &collidable : not_colliding)
-    {
-        collidable->render_collision_box(renderer, false);
-    }
+    //    for (const auto &collidable : colliding)
+    //    {
+    //        collidable->render_collision_box(renderer, true);
+    //    }
+    //
+    //    for (const auto &collidable : not_colliding)
+    //    {
+    //        collidable->render_collision_box(renderer, false);
+    //    }
 
     fps_timer += event.seconds_elapsed;
     total_seconds_elapsed += event.seconds_elapsed;

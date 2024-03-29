@@ -225,7 +225,6 @@ void Slime::update(Game &game, float attenuation)
 
 void Slime::render(Renderer &renderer)
 {
-    render_aggro_area(renderer);
     m_sprite.render(renderer);
 }
 
@@ -258,12 +257,12 @@ bool Slime::should_be_destroyed()
 
 bool Slime::is_attacking() const
 {
-    return false;
+    return m_is_attacking;
 }
 
 float Slime::attack_power() const
 {
-    return 0;
+    return 0.5F;
 }
 
 float Slime::c_x() const
