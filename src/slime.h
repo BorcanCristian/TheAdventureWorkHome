@@ -74,6 +74,7 @@ private:
     std::uniform_int_distribution<> m_distribution;
 
     float m_health{ 3.F };
+    float m_speed{ 65.F };
     bool  m_should_be_destroyed{ false };
 
     Sound &m_sound;

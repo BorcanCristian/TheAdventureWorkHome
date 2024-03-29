@@ -29,8 +29,10 @@ Slime::Slime(Renderer &renderer, Sound &sound)
   , m_distribution{ 0, 10 }
   , m_sound{ sound }
 {
-    x() = 100.F;
-    y() = 100.F;
+    x()          = 100.F;
+    y()          = 100.F;
+    m_sprite.x() = x();
+    m_sprite.y() = y();
 
     width()  = m_sprite.width() / MAX_FRAMES;
     height() = m_sprite.height() / MAX_FRAMES;
@@ -43,7 +45,7 @@ Slime::Slime(Renderer &renderer, Sound &sound)
     m_sprite.set_frame_time(std::chrono::milliseconds{ 100 });
 
     m_attack_sound_id =
-        sound.load_sample(resource__07_human_atk_sword_1, resource__07_human_atk_sword_1_size);
+        sound.load_sample(resource__04_slime_attack, resource__04_slime_attack_size);
 }
 
 void Slime::attack()
@@ -80,11 +82,46 @@ void Slime::update(Game &game, float attenuation)
             return;
         }
     }
-    //    else if (has_aggro())
-    //    {
-    //        attack();
-    //        return;
-    //    }
+    else if (has_aggro())
+    {
+        if (!is_colliding(*aggravated_by()))
+        {
+            auto aggro_for = dynamic_cast<IThing *>(aggravated_by());
+
+            if (aggro_for->x() < x())
+            {
+                x() -= m_speed * attenuation;
+                m_sprite.x() -= m_speed * attenuation;
+                m_orientation = Orientation::Left;
+            }
+            else
+            {
+                x() += m_speed * attenuation;
+                m_sprite.x() += m_speed * attenuation;
+                m_orientation = Orientation::Right;
+            }
+
+            if (aggro_for->y() < y())
+            {
+                y() -= m_speed * attenuation;
+                m_sprite.y() -= m_speed * attenuation;
+            }
+            else
+            {
+                y() += m_speed * attenuation;
+                m_sprite.y() += m_speed * attenuation;
+            }
+
+            m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
+            m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
+        }
+        else
+        {
+            attack();
+        }
+
+        return;
+    }
 
     const auto now = std::chrono::steady_clock::now();
     if (now - m_last_gen_time >= std::chrono::seconds{ 1 })
@@ -124,8 +161,8 @@ void Slime::update(Game &game, float attenuation)
         switch (m_direction)
         {
         case Direction::Up: {
-            y() -= 80.F * attenuation;
-            m_sprite.y() -= 80.F * attenuation;
+            y() -= m_speed * attenuation;
+            m_sprite.y() -= m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
 
@@ -133,8 +170,8 @@ void Slime::update(Game &game, float attenuation)
             break;
         }
         case Direction::Down: {
-            y() += 80.F * attenuation;
-            m_sprite.y() += 80.F * attenuation;
+            y() += m_speed * attenuation;
+            m_sprite.y() += m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
 
@@ -142,8 +179,8 @@ void Slime::update(Game &game, float attenuation)
             break;
         }
         case Direction::Left: {
-            x() -= 80.F * attenuation;
-            m_sprite.x() -= 80.F * attenuation;
+            x() -= m_speed * attenuation;
+            m_sprite.x() -= m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, true);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
             m_orientation = Orientation::Left;
@@ -152,8 +189,8 @@ void Slime::update(Game &game, float attenuation)
             break;
         }
         case Direction::Right: {
-            x() += 80.F * attenuation;
-            m_sprite.x() += 80.F * attenuation;
+            x() += m_speed * attenuation;
+            m_sprite.x() += m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
             m_orientation = Orientation::Right;

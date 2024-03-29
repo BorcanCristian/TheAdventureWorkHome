@@ -29,21 +29,19 @@ void IAggravatable::set_aggro_area(Rect aggro_area)
     m_aggravation_zone.set_collision_box(aggro_area);
 }
 
-void IAggravatable::set_aggravated_by(IThing &thing)
+void IAggravatable::set_aggravated_by(ICollidable &thing)
 {
     m_aggravated_by = &thing;
 }
 
+ICollidable *IAggravatable::aggravated_by() const
+{
+    return m_aggravated_by;
+}
+
 bool IAggravatable::has_aggro()
 {
-    auto collidable_thing = CollidableThing{ m_aggravated_by->x(), m_aggravated_by->y() };
-    collidable_thing.set_collision_box({ 0, 0, 1, 1 });
-
-    std::cerr << "TargetX: " << m_aggravated_by->x() << "\nTargetY: " << m_aggravated_by->y()
-              << "\nCollX: " << m_aggravation_zone.c_x() << "\nCollY: " << m_aggravation_zone.c_y()
-              << '\n';
-
-    return m_aggravation_zone.is_colliding(collidable_thing);
+    return m_aggravation_zone.is_colliding(*m_aggravated_by);
 }
 
 void IAggravatable::render_aggro_area(Renderer &renderer)

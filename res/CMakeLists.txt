@@ -13,6 +13,7 @@ set (
         "res/sfx/26_sword_hit_1.mp3"
         "res/sfx/26_sword_hit_2.mp3"
         "res/sfx/26_sword_hit_3.mp3"
+        "res/sfx/04_slime_attack.mp3"
 )
 
 set (RES_FIXED_PATH)

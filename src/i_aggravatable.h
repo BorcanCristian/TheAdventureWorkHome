@@ -5,7 +5,6 @@
 //    Capable of being aggravated.
 
 #include "i_collidable.h"
-#include "i_thing.h"
 
 #include <functional>
 
@@ -42,14 +41,15 @@ public:
     virtual float a_x() const = 0;
     virtual float a_y() const = 0;
 
-    void set_aggro_area(Rect aggro_area);
-    void set_aggravated_by(IThing &thing);
-    bool has_aggro();
+    void         set_aggro_area(Rect aggro_area);
+    void         set_aggravated_by(ICollidable &thing);
+    ICollidable *aggravated_by() const;
+    bool         has_aggro();
 
     void render_aggro_area(Renderer &renderer);
 
 private:
-    IThing *m_aggravated_by{ nullptr };
+    ICollidable *m_aggravated_by{ nullptr };
 
     AggravationZone m_aggravation_zone{ [this] { return a_x(); },
                                         [this] {

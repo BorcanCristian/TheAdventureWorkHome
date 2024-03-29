@@ -21,7 +21,7 @@ void Game::load_assets(Renderer &renderer)
     m_map.emplace(renderer);
 
     m_bg_music_id = m_sound.load_music(resource_world_bg, resource_world_bg_size);
-    //    m_sound.play_music(m_bg_music_id);
+    m_sound.play_music(m_bg_music_id);
 
     auto *hero       = new Hero{ renderer, m_sound };
     hero->x()        = 500;
@@ -135,15 +135,15 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         }
     }
 
-    //    for (const auto &collidable : colliding)
-    //    {
-    //        collidable->render_collision_box(renderer, true);
-    //    }
-    //
-    //    for (const auto &collidable : not_colliding)
-    //    {
-    //        collidable->render_collision_box(renderer, false);
-    //    }
+    for (const auto &collidable : colliding)
+    {
+        collidable->render_collision_box(renderer, true);
+    }
+
+    for (const auto &collidable : not_colliding)
+    {
+        collidable->render_collision_box(renderer, false);
+    }
 
     fps_timer += event.seconds_elapsed;
     total_seconds_elapsed += event.seconds_elapsed;

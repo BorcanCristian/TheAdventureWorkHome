@@ -17,7 +17,7 @@ Sound::Sound()
 {
     Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 2048);
     Mix_AllocateChannels(8);
-    Mix_VolumeMusic(100);
+    Mix_VolumeMusic(10);
 
     SOUND_INSTANCE = this;
 }
