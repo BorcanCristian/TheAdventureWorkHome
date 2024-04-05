@@ -23,14 +23,14 @@ void Game::load_assets(Renderer &renderer)
     m_bg_music_id = m_sound.load_music(resource_world_bg, resource_world_bg_size);
     m_sound.play_music(m_bg_music_id);
 
-    auto *tree = new Object{ renderer, 100, 100, resource_tree_01, resource_tree_01_size };
-    m_things.emplace(tree->id(), tree);
-
-    tree = new Object{ renderer, 200, 200, resource_tree_01, resource_tree_01_size };
-    m_things.emplace(tree->id(), tree);
-
-    auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
-    m_things.emplace(bush->id(), bush);
+    //    auto *tree = new Object{ renderer, 100, 100, resource_tree_01, resource_tree_01_size };
+    //    m_things.emplace(tree->id(), tree);
+    //
+    //    tree = new Object{ renderer, 200, 200, resource_tree_01, resource_tree_01_size };
+    //    m_things.emplace(tree->id(), tree);
+    //
+    //    auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
+    //    m_things.emplace(bush->id(), bush);
 
     auto *hero = new Hero{ renderer, m_sound };
     hero->x()  = 500;
@@ -39,8 +39,8 @@ void Game::load_assets(Renderer &renderer)
     for (int i = 0; i < 5; ++i)
     {
         auto *slime = new Slime{ renderer, m_sound };
-        slime->x() += i * 64;
-        slime->y() += i * 45;
+        slime->x() += 100 + i * 64;
+        slime->y() += 100 + i * 45;
 
         slime->set_aggravated_by(*hero);
 
@@ -85,7 +85,7 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
 
         if (auto *renderable = dynamic_cast<IRenderable *>(thing.get()))
         {
-            renderable->render(renderer);
+            renderable->render(renderer, m_map->viewport());
         }
     }
 
@@ -131,12 +131,12 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
 
     //    for (const auto &collidable : colliding)
     //    {
-    //        collidable->render_collision_box(renderer, true);
+    //        collidable->render_collision_box(renderer, m_map->viewport(), true);
     //    }
     //
     //    for (const auto &collidable : not_colliding)
     //    {
-    //        collidable->render_collision_box(renderer, false);
+    //        collidable->render_collision_box(renderer, m_map->viewport(), false);
     //    }
 
     fps_timer += event.seconds_elapsed;

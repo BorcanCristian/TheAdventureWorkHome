@@ -174,6 +174,11 @@ void Map::render()
                           m_renderer.height());
 }
 
+const Map::Viewport &Map::viewport() const
+{
+    return m_viewport;
+}
+
 float Map::width() const
 {
     return static_cast<float>(m_width);

@@ -31,8 +31,9 @@ public:
     std::pair<float, float> update(float x_px, float y_px, float speed, float attenuation);
     void                    render();
 
-    float width() const;
-    float height() const;
+    const Viewport &viewport() const;
+    float           width() const;
+    float           height() const;
 
 private:
     Renderer &m_renderer;

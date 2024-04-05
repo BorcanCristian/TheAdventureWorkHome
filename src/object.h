@@ -31,7 +31,7 @@ public:
 public:
     void update(Game &game, float attenuation = 1.F) override;
 
-    void render(Renderer &renderer) override;
+    void render(Renderer &renderer, const Map::Viewport &viewport) override;
 
 private:
     Sprite m_sprite;

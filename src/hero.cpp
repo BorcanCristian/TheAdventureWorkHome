@@ -1,6 +1,7 @@
 #include "hero.h"
 #include "codes.h"
 #include "game.h"
+#include "map.h"
 
 #include <resources.h>
 
@@ -23,7 +24,7 @@ enum SpriteSet
 
 static constexpr std::int32_t MAX_FRAMES            = 6;
 static constexpr std::int32_t ATTACK_FRAMES         = 4;
-static constexpr Rect         DEFAULT_COLLISION_BOX = { -9, 8, 19, 14 };
+static constexpr Rect         DEFAULT_COLLISION_BOX = { 15, 27, 18, 18 };
 
 Hero::Hero(Renderer &renderer, Sound &sound)
   : m_sprite{ resource_player, resource_player_size, renderer }
@@ -193,9 +194,9 @@ void Hero::update(Game &game, float attenuation)
     }
 }
 
-void Hero::render(Renderer &renderer)
+void Hero::render(Renderer &renderer, const Map::Viewport &viewport)
 {
-    m_sprite.render(renderer, x(), y());
+    m_sprite.render(renderer, x() - viewport.x, y() - viewport.y);
 }
 
 void Hero::on_key_pressed(const KeyPressEvent &event)

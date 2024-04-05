@@ -14,7 +14,9 @@ void ICollidable::set_collision_box(Rect collision_box)
     m_collision_box = collision_box;
 }
 
-void ICollidable::render_collision_box(Renderer &renderer, bool is_colliding)
+void ICollidable::render_collision_box(Renderer            &renderer,
+                                       const Map::Viewport &viewport,
+                                       bool                 is_colliding)
 {
     const auto *self = dynamic_cast<IThing *>(this);
     if (self == nullptr)
@@ -30,10 +32,11 @@ void ICollidable::render_collision_box(Renderer &renderer, bool is_colliding)
     {
         renderer.set_color({ 255, 0, 0, 255 });
     }
-    renderer.draw_rect(static_cast<std::int32_t>(std::round(self->x() + m_collision_box.x)),
-                       static_cast<std::int32_t>(std::round(self->y() + m_collision_box.y)),
-                       m_collision_box.width,
-                       m_collision_box.height);
+    renderer.draw_rect(
+        static_cast<std::int32_t>(std::round(self->x() + m_collision_box.x - viewport.x)),
+        static_cast<std::int32_t>(std::round(self->y() + m_collision_box.y - viewport.y)),
+        m_collision_box.width,
+        m_collision_box.height);
 
     if (!is_colliding)
     {
@@ -43,10 +46,11 @@ void ICollidable::render_collision_box(Renderer &renderer, bool is_colliding)
     {
         renderer.set_color({ 255, 0, 0, 64 });
     }
-    renderer.fill_rect(static_cast<std::int32_t>(std::round(self->x() + m_collision_box.x)),
-                       static_cast<std::int32_t>(std::round(self->y() + m_collision_box.y)),
-                       m_collision_box.width,
-                       m_collision_box.height);
+    renderer.fill_rect(
+        static_cast<std::int32_t>(std::round(self->x() + m_collision_box.x - viewport.x)),
+        static_cast<std::int32_t>(std::round(self->y() + m_collision_box.y - viewport.y)),
+        m_collision_box.width,
+        m_collision_box.height);
 }
 
 bool ICollidable::is_colliding(const ICollidable &other)

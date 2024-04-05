@@ -39,7 +39,7 @@ public:
     float attack_power() const override;
 
     void update(Game &game, float attenuation = 1.F) override;
-    void render(Renderer &renderer) override;
+    void render(Renderer &renderer, const Map::Viewport &viewport) override;
     void on_key_pressed(const KeyPressEvent &event) override;
     void on_key_released(const KeyReleaseEvent &event) override;
 

@@ -18,7 +18,7 @@ public:
     IThing *aggravated_by() const;
     bool    has_aggro();
 
-    void render_aggro_area(Renderer &renderer);
+    void render_aggro_area(Renderer &renderer, const Map::Viewport &viewport);
 
 private:
     IThing *m_aggravated_by{ nullptr };

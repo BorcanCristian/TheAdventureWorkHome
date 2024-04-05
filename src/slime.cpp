@@ -1,6 +1,7 @@
 #include "slime.h"
 #include "codes.h"
 #include "game.h"
+#include "map.h"
 
 #include <resources.h>
 
@@ -32,8 +33,8 @@ Slime::Slime(Renderer &renderer, Sound &sound)
     width()  = m_sprite.width() / MAX_FRAMES;
     height() = m_sprite.height() / MAX_FRAMES;
 
-    set_collision_box({ -9, -7, 19, 18 });
-    set_aggro_area({ -36, -32, 76, 72 });
+    set_collision_box({ 5, 5, 22, 21 });
+    set_aggro_area({ -22, -18, 76, 72 });
 
     m_sprite.set_sprite_set(SpriteSet::IdleRight);
     m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - IDLE_FRAMES);
@@ -216,9 +217,10 @@ void Slime::update(Game &game, float attenuation)
     }
 }
 
-void Slime::render(Renderer &renderer)
+void Slime::render(Renderer &renderer, const Map::Viewport &viewport)
 {
-    m_sprite.render(renderer, x(), y());
+    render_aggro_area(renderer, viewport);
+    m_sprite.render(renderer, x() - viewport.x, y() - viewport.y);
 }
 
 void Slime::take_damage(float damage)
