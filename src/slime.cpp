@@ -219,7 +219,7 @@ void Slime::update(Game &game, float attenuation)
 
 void Slime::render(Renderer &renderer, const Map::Viewport &viewport)
 {
-    render_aggro_area(renderer, viewport);
+    // render_aggro_area(renderer, viewport);
     m_sprite.render(renderer, x() - viewport.x, y() - viewport.y);
 }
 

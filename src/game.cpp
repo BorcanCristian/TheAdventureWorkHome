@@ -55,8 +55,7 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
     renderer.set_color({ 0, 0, 0, 255 });
     renderer.clear();
 
-    const auto [offset_x, offset_y] =
-        m_map->update(m_hero->x(), m_hero->y(), m_hero->speed(), event.seconds_elapsed);
+    m_map->update(m_hero->x(), m_hero->y(), m_hero->speed(), event.seconds_elapsed);
     m_map->render();
 
     std::vector<std::size_t> destroyed_ids;

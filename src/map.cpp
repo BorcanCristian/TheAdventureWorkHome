@@ -124,39 +124,35 @@ Map::TileType Map::pos(std::size_t i, std::size_t j) const
     return m_tiles[(i / TILE_SIZE) * (m_width / TILE_SIZE) + (j / TILE_SIZE)];
 }
 
-std::pair<float, float> Map::update(float hero_x, float hero_y, float speed, float attenuation)
+void Map::update(float hero_x, float hero_y, float speed, float attenuation)
 {
     static constexpr int SCROLL_THRESHOLD = 100;
 
     const auto window_width  = m_renderer.width();
     const auto window_height = m_renderer.height();
 
-    float offset_x = 0.F;
-    float offset_y = 0.F;
+    const auto hero_screen_x = hero_x - m_viewport.x;
+    const auto hero_screen_y = hero_y - m_viewport.y;
 
-    if ((hero_x > window_width - SCROLL_THRESHOLD) && (m_viewport.x + m_viewport.w < m_width))
+    if ((hero_screen_x > window_width - SCROLL_THRESHOLD) &&
+        (m_viewport.x + m_viewport.w < m_width))
     {
         m_viewport.x += speed * attenuation;
-        offset_x = -speed * attenuation;
     }
-    else if ((hero_x < SCROLL_THRESHOLD) && (m_viewport.x > 0))
+    else if ((hero_screen_x < SCROLL_THRESHOLD) && (m_viewport.x > 0))
     {
         m_viewport.x -= speed * attenuation;
-        offset_x = speed * attenuation;
     }
 
-    if ((hero_y > window_height - SCROLL_THRESHOLD) && (m_viewport.y + m_viewport.h < m_height))
+    if ((hero_screen_y > window_height - SCROLL_THRESHOLD) &&
+        (m_viewport.y + m_viewport.h < m_height))
     {
         m_viewport.y += speed * attenuation;
-        offset_y = -speed * attenuation;
     }
-    else if ((hero_y < SCROLL_THRESHOLD) && (m_viewport.y > 0))
+    else if ((hero_screen_y < SCROLL_THRESHOLD) && (m_viewport.y > 0))
     {
         m_viewport.y -= speed * attenuation;
-        offset_y = speed * attenuation;
     }
-
-    return { offset_x, offset_y };
 }
 
 void Map::render()

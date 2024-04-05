@@ -27,9 +27,9 @@ public:
 public:
     explicit Map(Renderer &renderer);
 
-    TileType                pos(std::size_t i, std::size_t j) const;
-    std::pair<float, float> update(float x_px, float y_px, float speed, float attenuation);
-    void                    render();
+    TileType pos(std::size_t i, std::size_t j) const;
+    void     update(float x_px, float y_px, float speed, float attenuation);
+    void     render();
 
     const Viewport &viewport() const;
     float           width() const;
