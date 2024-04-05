@@ -7,6 +7,7 @@
 #include "sprite.h"
 
 #include <cstdint>
+#include <iostream>
 
 class Object
   : public IThing
@@ -24,14 +25,20 @@ public:
         x() = xx;
         y() = yy;
 
-        set_collision_box(
-            { m_sprite.width() / 2, m_sprite.height() / 2, m_sprite.width(), m_sprite.height() });
+        width()  = m_sprite.width();
+        height() = m_sprite.height();
+
+        set_collision_box({ width() / 2, height() / 2, width(), height() });
     }
 
 public:
     void update(Game &game, float attenuation = 1.F) override;
 
     void render(Renderer &renderer, const Map::Viewport &viewport) override;
+    bool allow_passthrough() const override
+    {
+        return false;
+    }
 
 private:
     Sprite m_sprite;

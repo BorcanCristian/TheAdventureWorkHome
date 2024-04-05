@@ -23,20 +23,20 @@ void Game::load_assets(Renderer &renderer)
     m_bg_music_id = m_sound.load_music(resource_world_bg, resource_world_bg_size);
     m_sound.play_music(m_bg_music_id);
 
-    //    auto *tree = new Object{ renderer, 100, 100, resource_tree_01, resource_tree_01_size };
-    //    m_things.emplace(tree->id(), tree);
-    //
-    //    tree = new Object{ renderer, 200, 200, resource_tree_01, resource_tree_01_size };
-    //    m_things.emplace(tree->id(), tree);
-    //
-    //    auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
-    //    m_things.emplace(bush->id(), bush);
+    auto *tree = new Object{ renderer, 100, 100, resource_tree_01, resource_tree_01_size };
+    m_things.emplace(tree->id(), tree);
+
+    tree = new Object{ renderer, 200, 200, resource_tree_01, resource_tree_01_size };
+    m_things.emplace(tree->id(), tree);
+
+    auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
+    m_things.emplace(bush->id(), bush);
 
     auto *hero = new Hero{ renderer, m_sound };
     hero->x()  = 500;
     m_things.emplace(hero->id(), hero);
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 0; ++i)
     {
         auto *slime = new Slime{ renderer, m_sound };
         slime->x() += 100 + i * 64;
@@ -111,10 +111,25 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
                 const auto i_id = collidables[i].first;
                 const auto j_id = collidables[j].first;
 
-                //                auto *ci = collidables[i].second;
-                //                auto *cj = collidables[j].second;
-                //
-                //                if (!ci->allow_passthrough()) {}
+                auto *ci = collidables[i].second;
+                auto *cj = collidables[j].second;
+
+                if (!cj->allow_passthrough())
+                {
+                    auto *ci_thing = dynamic_cast<IThing *>(ci);
+                    auto *cj_thing = dynamic_cast<IThing *>(cj);
+
+                    const auto cj_cb = cj->get_collision_box();
+
+                    if (ci_thing != nullptr && cj_thing != nullptr)
+                    {
+                        ci_thing->x() =
+                            cj_cb.x + cj_cb.width + cj_thing->x() - ci->get_collision_box().x;
+
+                        std::cout << "collision box: " << cj_cb.x << " " << cj_cb.y << " "
+                                  << cj_cb.width << " " << cj_cb.height << std::endl;
+                    }
+                }
 
                 try_attack(i_id, j_id);
                 try_attack(j_id, i_id);
@@ -128,15 +143,15 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         }
     }
 
-    //    for (const auto &collidable : colliding)
-    //    {
-    //        collidable->render_collision_box(renderer, m_map->viewport(), true);
-    //    }
-    //
-    //    for (const auto &collidable : not_colliding)
-    //    {
-    //        collidable->render_collision_box(renderer, m_map->viewport(), false);
-    //    }
+    for (const auto &collidable : colliding)
+    {
+        collidable->render_collision_box(renderer, m_map->viewport(), true);
+    }
+
+    for (const auto &collidable : not_colliding)
+    {
+        collidable->render_collision_box(renderer, m_map->viewport(), false);
+    }
 
     fps_timer += event.seconds_elapsed;
     total_seconds_elapsed += event.seconds_elapsed;
