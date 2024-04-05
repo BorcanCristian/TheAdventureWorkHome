@@ -9,7 +9,5 @@ public:
     virtual ~IRenderable() = default;
 
 public:
-    virtual void   render(Renderer &renderer) = 0;
-    virtual float &render_x()                 = 0;
-    virtual float &render_y()                 = 0;
+    virtual void render(Renderer &renderer) = 0;
 };

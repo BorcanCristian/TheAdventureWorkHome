@@ -24,9 +24,6 @@ public:
         x() = xx;
         y() = yy;
 
-        m_sprite.x() = xx;
-        m_sprite.y() = yy;
-
         set_collision_box(
             { m_sprite.width() / 2, m_sprite.height() / 2, m_sprite.width(), m_sprite.height() });
     }
@@ -34,13 +31,7 @@ public:
 public:
     void update(Game &game, float attenuation = 1.F) override;
 
-    void   render(Renderer &renderer) override;
-    float &render_x() override;
-    float &render_y() override;
-
-protected:
-    float c_x() const override;
-    float c_y() const override;
+    void render(Renderer &renderer) override;
 
 private:
     Sprite m_sprite;

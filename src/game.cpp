@@ -32,18 +32,15 @@ void Game::load_assets(Renderer &renderer)
     auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
     m_things.emplace(bush->id(), bush);
 
-    auto *hero       = new Hero{ renderer, m_sound };
-    hero->x()        = 500;
-    hero->render_x() = hero->x();
+    auto *hero = new Hero{ renderer, m_sound };
+    hero->x()  = 500;
     m_things.emplace(hero->id(), hero);
 
     for (int i = 0; i < 5; ++i)
     {
         auto *slime = new Slime{ renderer, m_sound };
         slime->x() += i * 64;
-        slime->render_x() = slime->x();
         slime->y() += i * 45;
-        slime->render_y() = slime->y();
 
         slime->set_aggravated_by(*hero);
 
@@ -58,10 +55,8 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
     renderer.set_color({ 0, 0, 0, 255 });
     renderer.clear();
 
-    const auto [offset_x, offset_y] = m_map->update(m_hero->render_x(),
-                                                    m_hero->render_y(),
-                                                    m_hero->speed(),
-                                                    event.seconds_elapsed);
+    const auto [offset_x, offset_y] =
+        m_map->update(m_hero->x(), m_hero->y(), m_hero->speed(), event.seconds_elapsed);
     m_map->render();
 
     std::vector<std::size_t> destroyed_ids;
@@ -90,24 +85,9 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
 
         if (auto *renderable = dynamic_cast<IRenderable *>(thing.get()))
         {
-            renderable->render_x() = renderable->render_x() + offset_x;
-            renderable->render_y() = renderable->render_y() + offset_y;
-
-            if (id == m_hero->id())
-            {
-                m_hero->render_x() =
-                    std::clamp(m_hero->render_x(), 0.F, static_cast<float>(renderer.width()));
-                m_hero->render_y() =
-                    std::clamp(m_hero->render_y(), 0.F, static_cast<float>(renderer.height()));
-            }
-            else
-            {
-                renderable->render(renderer);
-            }
+            renderable->render(renderer);
         }
     }
-
-    m_hero->render(renderer);
 
     std::unordered_set<ICollidable *> colliding;
     colliding.reserve(m_things.size());
@@ -149,15 +129,15 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         }
     }
 
-    for (const auto &collidable : colliding)
-    {
-        collidable->render_collision_box(renderer, true);
-    }
-
-    for (const auto &collidable : not_colliding)
-    {
-        collidable->render_collision_box(renderer, false);
-    }
+    //    for (const auto &collidable : colliding)
+    //    {
+    //        collidable->render_collision_box(renderer, true);
+    //    }
+    //
+    //    for (const auto &collidable : not_colliding)
+    //    {
+    //        collidable->render_collision_box(renderer, false);
+    //    }
 
     fps_timer += event.seconds_elapsed;
     total_seconds_elapsed += event.seconds_elapsed;

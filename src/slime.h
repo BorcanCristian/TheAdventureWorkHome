@@ -41,23 +41,14 @@ public:
 
     void attack();
 
-    void   update(Game &game, float attenuation = 1.F) override;
-    void   render(Renderer &renderer) override;
-    float &render_x() override;
-    float &render_y() override;
+    void update(Game &game, float attenuation = 1.F) override;
+    void render(Renderer &renderer) override;
 
     void take_damage(float damage) override;
     bool should_be_destroyed() override;
 
     bool  is_attacking() const override;
     float attack_power() const override;
-
-private:
-    float c_x() const override;
-    float c_y() const override;
-
-    float a_x() const override;
-    float a_y() const override;
 
 private:
     AnimatedSprite m_sprite;

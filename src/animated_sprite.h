@@ -10,7 +10,7 @@ class AnimatedSprite final : public Sprite
 public:
     using Sprite::Sprite;
 
-    void render(Renderer &renderer) override;
+    void render(Renderer &renderer, float x, float y) override;
 
     void set_sprite_set(std::int32_t sprite_set, bool flip = false);
     void set_total_frames(std::int32_t total_frames, std::int32_t exclude_frames = 0);

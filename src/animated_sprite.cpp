@@ -3,7 +3,7 @@
 #include <cmath>
 #include <iostream>
 
-void AnimatedSprite::render(Renderer &renderer)
+void AnimatedSprite::render(Renderer &renderer, float x, float y)
 {
     auto now = std::chrono::steady_clock::now();
     if (now - m_last_frame_time >= m_frame_time)
@@ -12,10 +12,10 @@ void AnimatedSprite::render(Renderer &renderer)
         m_last_frame_time = now;
     }
 
-    const auto x = this->x() - static_cast<float>(m_frame_size) / 2.F;
-    const auto y = this->y() - static_cast<float>(m_frame_size) / 2.F;
+    const auto xx = x - static_cast<float>(m_frame_size) / 2.F;
+    const auto yy = y - static_cast<float>(m_frame_size) / 2.F;
 
-    renderer.draw_image(m_image_id,
+    renderer.draw_image(image_id(),
                         m_current_frame * m_frame_size,
                         m_sprite_set * m_frame_size,
                         static_cast<std::int32_t>(std::round(x)),
@@ -43,7 +43,7 @@ void AnimatedSprite::set_sprite_set(std::int32_t sprite_set, bool flip)
 void AnimatedSprite::set_total_frames(std::int32_t total_frames, std::int32_t exclude_frames)
 {
     m_total_frames = total_frames - exclude_frames;
-    m_frame_size   = m_width / total_frames;
+    m_frame_size   = width() / total_frames;
 }
 
 void AnimatedSprite::set_frame_time(std::chrono::milliseconds frame_time)

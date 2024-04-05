@@ -1,4 +1,5 @@
 #include "i_collidable.h"
+#include "i_thing.h"
 
 #include <cmath>
 #include <cstdint>
@@ -15,6 +16,12 @@ void ICollidable::set_collision_box(Rect collision_box)
 
 void ICollidable::render_collision_box(Renderer &renderer, bool is_colliding)
 {
+    const auto *self = dynamic_cast<IThing *>(this);
+    if (self == nullptr)
+    {
+        return;
+    }
+
     if (!is_colliding)
     {
         renderer.set_color({ 0, 0, 255, 255 });
@@ -23,8 +30,8 @@ void ICollidable::render_collision_box(Renderer &renderer, bool is_colliding)
     {
         renderer.set_color({ 255, 0, 0, 255 });
     }
-    renderer.draw_rect(static_cast<std::int32_t>(std::round(c_x() + m_collision_box.x)),
-                       static_cast<std::int32_t>(std::round(c_y() + m_collision_box.y)),
+    renderer.draw_rect(static_cast<std::int32_t>(std::round(self->x() + m_collision_box.x)),
+                       static_cast<std::int32_t>(std::round(self->y() + m_collision_box.y)),
                        m_collision_box.width,
                        m_collision_box.height);
 
@@ -36,21 +43,33 @@ void ICollidable::render_collision_box(Renderer &renderer, bool is_colliding)
     {
         renderer.set_color({ 255, 0, 0, 64 });
     }
-    renderer.fill_rect(static_cast<std::int32_t>(std::round(c_x() + m_collision_box.x)),
-                       static_cast<std::int32_t>(std::round(c_y() + m_collision_box.y)),
+    renderer.fill_rect(static_cast<std::int32_t>(std::round(self->x() + m_collision_box.x)),
+                       static_cast<std::int32_t>(std::round(self->y() + m_collision_box.y)),
                        m_collision_box.width,
                        m_collision_box.height);
 }
 
 bool ICollidable::is_colliding(const ICollidable &other)
 {
-    auto r1 = Rect{ c_x() + m_collision_box.x,
-                    c_y() + m_collision_box.y,
+    const auto *self = dynamic_cast<IThing *>(this);
+    if (self == nullptr)
+    {
+        return false;
+    }
+
+    const auto other_thing = dynamic_cast<const IThing *>(&other);
+    if (other_thing == nullptr)
+    {
+        return false;
+    }
+
+    auto r1 = Rect{ self->x() + m_collision_box.x,
+                    self->y() + m_collision_box.y,
                     m_collision_box.width,
                     m_collision_box.height };
 
-    auto r2 = Rect{ other.c_x() + other.m_collision_box.x,
-                    other.c_y() + other.m_collision_box.y,
+    auto r2 = Rect{ other_thing->x() + other.m_collision_box.x,
+                    other_thing->y() + other.m_collision_box.y,
                     other.m_collision_box.width,
                     other.m_collision_box.height };
 

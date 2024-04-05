@@ -5,32 +5,7 @@
 //    Capable of being aggravated.
 
 #include "i_collidable.h"
-
-#include <functional>
-
-class AggravationZone : public ICollidable
-{
-public:
-    AggravationZone(std::function<float()> &&x, std::function<float()> &&y)
-      : m_x{ std::move(x) }
-      , m_y{ std::move(y) }
-    {}
-
-public:
-    float c_x() const override
-    {
-        return m_x();
-    }
-
-    float c_y() const override
-    {
-        return m_y();
-    }
-
-private:
-    std::function<float()> m_x;
-    std::function<float()> m_y;
-};
+#include "i_thing.h"
 
 class IAggravatable
 {
@@ -38,21 +13,14 @@ public:
     virtual ~IAggravatable() = default;
 
 public:
-    virtual float a_x() const = 0;
-    virtual float a_y() const = 0;
-
-    void         set_aggro_area(Rect aggro_area);
-    void         set_aggravated_by(ICollidable &thing);
-    ICollidable *aggravated_by() const;
-    bool         has_aggro();
+    void    set_aggro_area(Rect aggro_area);
+    void    set_aggravated_by(IThing &thing);
+    IThing *aggravated_by() const;
+    bool    has_aggro();
 
     void render_aggro_area(Renderer &renderer);
 
 private:
-    ICollidable *m_aggravated_by{ nullptr };
-
-    AggravationZone m_aggravation_zone{ [this] { return a_x(); },
-                                        [this] {
-                                            return a_y();
-                                        } };
+    IThing *m_aggravated_by{ nullptr };
+    Rect    m_aggravation_zone;
 };

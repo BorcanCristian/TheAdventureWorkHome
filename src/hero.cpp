@@ -28,7 +28,6 @@ static constexpr Rect         DEFAULT_COLLISION_BOX = { -9, 8, 19, 14 };
 Hero::Hero(Renderer &renderer, Sound &sound)
   : m_sprite{ resource_player, resource_player_size, renderer }
   , m_sound{ sound }
-  , m_renderer{ renderer }
 {
     width()  = m_sprite.width() / MAX_FRAMES;
     height() = m_sprite.height() / MAX_FRAMES;
@@ -134,7 +133,6 @@ void Hero::update(Game &game, float attenuation)
     if (game.is_key_pressed(KeyCode::Up))
     {
         y() -= m_speed * attenuation;
-        m_sprite.y() -= m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningUp);
         m_orientation = Orientation::Up;
 
@@ -144,7 +142,6 @@ void Hero::update(Game &game, float attenuation)
     if (game.is_key_pressed(KeyCode::Down))
     {
         y() += m_speed * attenuation;
-        m_sprite.y() += m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningDown);
         m_orientation = Orientation::Down;
 
@@ -154,7 +151,6 @@ void Hero::update(Game &game, float attenuation)
     if (game.is_key_pressed(KeyCode::Left))
     {
         x() -= m_speed * attenuation;
-        m_sprite.x() -= m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight, true);
         m_orientation = Orientation::Left;
 
@@ -164,7 +160,6 @@ void Hero::update(Game &game, float attenuation)
     if (game.is_key_pressed(KeyCode::Right))
     {
         x() += m_speed * attenuation;
-        m_sprite.x() += m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight);
         m_orientation = Orientation::Right;
 
@@ -200,17 +195,7 @@ void Hero::update(Game &game, float attenuation)
 
 void Hero::render(Renderer &renderer)
 {
-    m_sprite.render(renderer);
-}
-
-float &Hero::render_x()
-{
-    return m_sprite.x();
-}
-
-float &Hero::render_y()
-{
-    return m_sprite.y();
+    m_sprite.render(renderer, x(), y());
 }
 
 void Hero::on_key_pressed(const KeyPressEvent &event)
@@ -233,14 +218,4 @@ void Hero::take_damage(float damage)
 bool Hero::should_be_destroyed()
 {
     return m_health <= 0.F;
-}
-
-float Hero::c_x() const
-{
-    return m_sprite.x();
-}
-
-float Hero::c_y() const
-{
-    return m_sprite.y();
 }

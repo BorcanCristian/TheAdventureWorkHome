@@ -29,11 +29,6 @@ Slime::Slime(Renderer &renderer, Sound &sound)
   , m_distribution{ 0, 10 }
   , m_sound{ sound }
 {
-    x()          = 100.F;
-    y()          = 100.F;
-    m_sprite.x() = x();
-    m_sprite.y() = y();
-
     width()  = m_sprite.width() / MAX_FRAMES;
     height() = m_sprite.height() / MAX_FRAMES;
 
@@ -84,32 +79,34 @@ void Slime::update(Game &game, float attenuation)
     }
     else if (has_aggro())
     {
-        if (!is_colliding(*aggravated_by()))
+        const auto *aggro_for = dynamic_cast<ICollidable *>(aggravated_by());
+        if (aggro_for == nullptr)
         {
-            auto aggro_for = dynamic_cast<IThing *>(aggravated_by());
+            return;
+        }
 
-            if (aggro_for->x() < x())
+        if (!is_colliding(*aggro_for))
+        {
+            const auto *aggravated_by = this->aggravated_by();
+
+            if (aggravated_by->x() < x())
             {
                 x() -= m_speed * attenuation;
-                m_sprite.x() -= m_speed * attenuation;
                 m_orientation = Orientation::Left;
             }
             else
             {
                 x() += m_speed * attenuation;
-                m_sprite.x() += m_speed * attenuation;
                 m_orientation = Orientation::Right;
             }
 
-            if (aggro_for->y() < y())
+            if (aggravated_by->y() < y())
             {
                 y() -= m_speed * attenuation;
-                m_sprite.y() -= m_speed * attenuation;
             }
             else
             {
                 y() += m_speed * attenuation;
-                m_sprite.y() += m_speed * attenuation;
             }
 
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
@@ -162,7 +159,6 @@ void Slime::update(Game &game, float attenuation)
         {
         case Direction::Up: {
             y() -= m_speed * attenuation;
-            m_sprite.y() -= m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
 
@@ -171,7 +167,6 @@ void Slime::update(Game &game, float attenuation)
         }
         case Direction::Down: {
             y() += m_speed * attenuation;
-            m_sprite.y() += m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
 
@@ -180,7 +175,6 @@ void Slime::update(Game &game, float attenuation)
         }
         case Direction::Left: {
             x() -= m_speed * attenuation;
-            m_sprite.x() -= m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, true);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
             m_orientation = Orientation::Left;
@@ -190,7 +184,6 @@ void Slime::update(Game &game, float attenuation)
         }
         case Direction::Right: {
             x() += m_speed * attenuation;
-            m_sprite.x() += m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
             m_orientation = Orientation::Right;
@@ -225,17 +218,7 @@ void Slime::update(Game &game, float attenuation)
 
 void Slime::render(Renderer &renderer)
 {
-    m_sprite.render(renderer);
-}
-
-float &Slime::render_x()
-{
-    return m_sprite.x();
-}
-
-float &Slime::render_y()
-{
-    return m_sprite.y();
+    m_sprite.render(renderer, x(), y());
 }
 
 void Slime::take_damage(float damage)
@@ -263,24 +246,4 @@ bool Slime::is_attacking() const
 float Slime::attack_power() const
 {
     return 0.5F;
-}
-
-float Slime::c_x() const
-{
-    return m_sprite.x();
-}
-
-float Slime::c_y() const
-{
-    return m_sprite.y();
-}
-
-float Slime::a_x() const
-{
-    return m_sprite.x();
-}
-
-float Slime::a_y() const
-{
-    return m_sprite.y();
 }

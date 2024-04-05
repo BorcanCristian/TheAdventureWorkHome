@@ -38,19 +38,13 @@ public:
     bool  is_attacking() const override;
     float attack_power() const override;
 
-    void   update(Game &game, float attenuation = 1.F) override;
-    void   render(Renderer &renderer) override;
-    float &render_x() override;
-    float &render_y() override;
-    void   on_key_pressed(const KeyPressEvent &event) override;
-    void   on_key_released(const KeyReleaseEvent &event) override;
+    void update(Game &game, float attenuation = 1.F) override;
+    void render(Renderer &renderer) override;
+    void on_key_pressed(const KeyPressEvent &event) override;
+    void on_key_released(const KeyReleaseEvent &event) override;
 
     void take_damage(float damage) override;
     bool should_be_destroyed() override;
-
-private:
-    float c_x() const override;
-    float c_y() const override;
 
 private:
     AnimatedSprite m_sprite;
@@ -63,6 +57,5 @@ private:
 
     float m_health{ 10.F };
 
-    Sound    &m_sound;
-    Renderer &m_renderer;
+    Sound &m_sound;
 };

@@ -27,9 +27,6 @@ public:
         return true;
     }
 
-    virtual float c_x() const = 0;
-    virtual float c_y() const = 0;
-
 private:
     Rect m_collision_box;
 };
