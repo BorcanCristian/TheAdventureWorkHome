@@ -68,7 +68,8 @@ public:
     bool is_key_pressed(KeyCode key_code) const;
 
 private:
-    void try_attack(int32_t thing_id_1, int32_t thing_id_2);
+    void        try_attack(int32_t thing_id_1, int32_t thing_id_2);
+    static void fixup_collisions(ICollidable *lhs, ICollidable *rhs) noexcept;
 
 private:
     const std::uint8_t *const m_mouse_button_states;

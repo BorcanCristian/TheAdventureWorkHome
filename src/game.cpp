@@ -24,9 +24,11 @@ void Game::load_assets(Renderer &renderer)
     m_sound.play_music(m_bg_music_id);
 
     auto *tree = new Object{ renderer, 100, 100, resource_tree_01, resource_tree_01_size };
+    tree->set_collision_box({ 33, 70, 28, 16 });
     m_things.emplace(tree->id(), tree);
 
     tree = new Object{ renderer, 200, 200, resource_tree_01, resource_tree_01_size };
+    tree->set_collision_box({ 33, 70, 28, 16 });
     m_things.emplace(tree->id(), tree);
 
     auto *bush = new Object{ renderer, 300, 300, resource_bush_01, resource_bush_01_size };
@@ -36,7 +38,7 @@ void Game::load_assets(Renderer &renderer)
     hero->x()  = 500;
     m_things.emplace(hero->id(), hero);
 
-    for (int i = 0; i < 0; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         auto *slime = new Slime{ renderer, m_sound };
         slime->x() += 100 + i * 64;
@@ -116,45 +118,11 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
 
                 if (!cj->allow_passthrough())
                 {
-                    auto *ci_thing = dynamic_cast<IThing *>(ci);
-                    auto *cj_thing = dynamic_cast<IThing *>(cj);
-
-                    const auto [ci_center_x, ci_center_y] = ci->get_center();
-                    const auto [cj_center_x, cj_center_y] = cj->get_center();
-
-                    const auto ci_cb = ci->get_collision_box();
-                    const auto cj_cb = cj->get_collision_box();
-
-                    if (ci_thing != nullptr && cj_thing != nullptr)
-                    {
-                        // The thing that is moving is on top or under the immovable thing
-                        // We use a tolerance of 2 pixels
-                        if ((ci_cb.y + ci_cb.height - 2) < cj_cb.y ||
-                            (ci_cb.y + 2) > cj_cb.y + cj_cb.height)
-                        {
-                            // If we're on top or bottom then move the thing back vertically
-                            if (cj_center_y < ci_center_y)
-                            {
-                                ci_thing->y() = cj_cb.y + cj_cb.height - (ci_cb.y - ci_thing->y());
-                            }
-                            else if (cj_center_y >= ci_center_y)
-                            {
-                                ci_thing->y() = cj_cb.y - ci_cb.height - (ci_cb.y - ci_thing->y());
-                            }
-                        }
-                        else
-                        {
-                            // If we're on the left or right then move the thing back horizontally
-                            if (cj_center_x < ci_center_x)
-                            {
-                                ci_thing->x() = cj_cb.x + cj_cb.width - (ci_cb.x - ci_thing->x());
-                            }
-                            else if (cj_center_x >= ci_center_x)
-                            {
-                                ci_thing->x() = cj_cb.x - ci_cb.width - (ci_cb.x - ci_thing->x());
-                            }
-                        }
-                    }
+                    fixup_collisions(ci, cj);
+                }
+                if (!ci->allow_passthrough())
+                {
+                    fixup_collisions(cj, ci);
                 }
 
                 try_attack(i_id, j_id);
@@ -169,15 +137,15 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         }
     }
 
-    for (const auto &collidable : colliding)
-    {
-        collidable->render_collision_box(renderer, m_map->viewport(), true);
-    }
-
-    for (const auto &collidable : not_colliding)
-    {
-        collidable->render_collision_box(renderer, m_map->viewport(), false);
-    }
+    //    for (const auto &collidable : colliding)
+    //    {
+    //        collidable->render_collision_box(renderer, m_map->viewport(), true);
+    //    }
+    //
+    //    for (const auto &collidable : not_colliding)
+    //    {
+    //        collidable->render_collision_box(renderer, m_map->viewport(), false);
+    //    }
 
     fps_timer += event.seconds_elapsed;
     total_seconds_elapsed += event.seconds_elapsed;
@@ -319,6 +287,48 @@ void Game::try_attack(std::int32_t thing_id_1, std::int32_t thing_id_2)
             // thing_1's attack period has ended
             // Remove the attacker from the landed attacks
             m_landed_attacks.erase(attacker_it->first);
+        }
+    }
+}
+
+void Game::fixup_collisions(ICollidable *lhs, ICollidable *rhs) noexcept
+{
+    auto *ci_thing = dynamic_cast<IThing *>(lhs);
+    auto *cj_thing = dynamic_cast<IThing *>(rhs);
+
+    const auto [ci_center_x, ci_center_y] = lhs->get_center();
+    const auto [cj_center_x, cj_center_y] = rhs->get_center();
+
+    const auto ci_cb = lhs->get_collision_box();
+    const auto cj_cb = rhs->get_collision_box();
+
+    if (ci_thing != nullptr && cj_thing != nullptr)
+    {
+        // The thing that is moving is on top or under the immovable thing
+        // We use a tolerance of 2 pixels
+        if ((ci_cb.y + ci_cb.height - 2) < cj_cb.y || (ci_cb.y + 2) > cj_cb.y + cj_cb.height)
+        {
+            // If we're on top or bottom then move the thing back vertically
+            if (cj_center_y < ci_center_y)
+            {
+                ci_thing->y() = cj_cb.y + cj_cb.height - (ci_cb.y - ci_thing->y());
+            }
+            else if (cj_center_y >= ci_center_y)
+            {
+                ci_thing->y() = cj_cb.y - ci_cb.height - (ci_cb.y - ci_thing->y());
+            }
+        }
+        else
+        {
+            // If we're on the left or right then move the thing back horizontally
+            if (cj_center_x < ci_center_x)
+            {
+                ci_thing->x() = cj_cb.x + cj_cb.width - (ci_cb.x - ci_thing->x());
+            }
+            else if (cj_center_x >= ci_center_x)
+            {
+                ci_thing->x() = cj_cb.x - ci_cb.width - (ci_cb.x - ci_thing->x());
+            }
         }
     }
 }

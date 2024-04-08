@@ -27,8 +27,6 @@ public:
 
         width()  = m_sprite.width();
         height() = m_sprite.height();
-
-        set_collision_box({ width() / 2, height() / 2, width(), height() });
     }
 
 public:

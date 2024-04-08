@@ -196,8 +196,8 @@ void Hero::update(Game &game, float attenuation)
 
 void Hero::render(Renderer &renderer, const Map::Viewport &viewport)
 {
-    renderer.set_color({ 255, 255, 255, 255 });
-    renderer.draw_rect(x() - viewport.x, y() - viewport.y, width(), height());
+    //    renderer.set_color({ 255, 255, 255, 255 });
+    //    renderer.draw_rect(x() - viewport.x, y() - viewport.y, width(), height());
     m_sprite.render(renderer, x() - viewport.x, y() - viewport.y);
 }
 
