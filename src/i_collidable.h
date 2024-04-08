@@ -17,8 +17,9 @@ public:
     virtual ~ICollidable() = default;
 
 public:
-    const Rect &get_collision_box() const;
-    void        set_collision_box(Rect collision_box);
+    Rect                    get_collision_box() const;
+    void                    set_collision_box(Rect collision_box);
+    std::pair<float, float> get_center() const;
 
     virtual void render_collision_box(Renderer            &renderer,
                                       const Map::Viewport &viewport,

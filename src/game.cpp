@@ -119,15 +119,41 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
                     auto *ci_thing = dynamic_cast<IThing *>(ci);
                     auto *cj_thing = dynamic_cast<IThing *>(cj);
 
+                    const auto [ci_center_x, ci_center_y] = ci->get_center();
+                    const auto [cj_center_x, cj_center_y] = cj->get_center();
+
+                    const auto ci_cb = ci->get_collision_box();
                     const auto cj_cb = cj->get_collision_box();
 
                     if (ci_thing != nullptr && cj_thing != nullptr)
                     {
-                        ci_thing->x() =
-                            cj_cb.x + cj_cb.width + cj_thing->x() - ci->get_collision_box().x;
-
-                        std::cout << "collision box: " << cj_cb.x << " " << cj_cb.y << " "
-                                  << cj_cb.width << " " << cj_cb.height << std::endl;
+                        // The thing that is moving is on top or under the immovable thing
+                        // We use a tolerance of 2 pixels
+                        if ((ci_cb.y + ci_cb.height - 2) < cj_cb.y ||
+                            (ci_cb.y + 2) > cj_cb.y + cj_cb.height)
+                        {
+                            // If we're on top or bottom then move the thing back vertically
+                            if (cj_center_y < ci_center_y)
+                            {
+                                ci_thing->y() = cj_cb.y + cj_cb.height - (ci_cb.y - ci_thing->y());
+                            }
+                            else if (cj_center_y >= ci_center_y)
+                            {
+                                ci_thing->y() = cj_cb.y - ci_cb.height - (ci_cb.y - ci_thing->y());
+                            }
+                        }
+                        else
+                        {
+                            // If we're on the left or right then move the thing back horizontally
+                            if (cj_center_x < ci_center_x)
+                            {
+                                ci_thing->x() = cj_cb.x + cj_cb.width - (ci_cb.x - ci_thing->x());
+                            }
+                            else if (cj_center_x >= ci_center_x)
+                            {
+                                ci_thing->x() = cj_cb.x - ci_cb.width - (ci_cb.x - ci_thing->x());
+                            }
+                        }
                     }
                 }
 

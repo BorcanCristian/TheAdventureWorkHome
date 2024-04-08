@@ -3,15 +3,36 @@
 
 #include <cmath>
 #include <cstdint>
+#include <utility>
 
-const Rect &ICollidable::get_collision_box() const
+Rect ICollidable::get_collision_box() const
 {
-    return m_collision_box;
+    const auto *self = dynamic_cast<const IThing *>(this);
+    if (self == nullptr)
+    {
+        return m_collision_box;
+    }
+
+    return Rect{ self->x() + m_collision_box.x,
+                 self->y() + m_collision_box.y,
+                 m_collision_box.width,
+                 m_collision_box.height };
 }
 
 void ICollidable::set_collision_box(Rect collision_box)
 {
     m_collision_box = collision_box;
+}
+
+std::pair<float, float> ICollidable::get_center() const
+{
+    const auto *self = dynamic_cast<const IThing *>(this);
+    const auto [offset_x, offset_y] =
+        self == nullptr
+            ? std::make_pair(m_collision_box.x, m_collision_box.y)
+            : std::make_pair(self->x() + m_collision_box.x, self->y() + m_collision_box.y);
+
+    return { (m_collision_box.width / 2.F) + offset_x, (m_collision_box.height / 2.F) + offset_y };
 }
 
 void ICollidable::render_collision_box(Renderer            &renderer,
