@@ -12,6 +12,7 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <map>
 #include <unordered_set>
 
 Game::~Game() = default;
@@ -77,6 +78,7 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
         m_things.erase(destroyed_ids[i]);
     }
 
+    std::multimap<int, IRenderable *> renderables;
     for (const auto &[id, thing] : m_things)
     {
         thing->update(*this, event.seconds_elapsed);
@@ -86,8 +88,13 @@ void Game::render(Renderer &renderer, const RenderEvent &event)
 
         if (auto *renderable = dynamic_cast<IRenderable *>(thing.get()))
         {
-            renderable->render(renderer, m_map->viewport());
+            renderables.emplace(renderable->z(), renderable);
         }
+    }
+
+    for (const auto &[z, renderable] : renderables)
+    {
+        renderable->render(renderer, m_map->viewport());
     }
 
     std::unordered_set<ICollidable *> colliding;

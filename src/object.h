@@ -33,6 +33,10 @@ public:
     void update(Game &game, float attenuation = 1.F) override;
 
     void render(Renderer &renderer, const Map::Viewport &viewport) override;
+    int  z() const override
+    {
+        return 2;
+    }
     bool allow_passthrough() const override
     {
         return false;

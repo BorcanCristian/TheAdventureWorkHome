@@ -11,4 +11,8 @@ public:
 
 public:
     virtual void render(Renderer &renderer, const Map::Viewport &viewport) = 0;
+    virtual int  z() const
+    {
+        return 0;
+    }
 };
