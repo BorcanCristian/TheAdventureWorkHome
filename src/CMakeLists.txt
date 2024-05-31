@@ -1,4 +1,4 @@
-add_executable (
+add_executable(
     ${PROJECT_ID}
     animated_sprite.h
     animated_sprite.cpp
@@ -8,15 +8,21 @@ add_executable (
     game.cpp
     hero.h
     hero.cpp
+    i_aggravatable.cpp
+    i_aggravatable.h
+    i_attacker.h
     i_collidable.h
     i_collidable.cpp
+    i_destroyable.h
     i_input_handler.h
-    i_input_handler.cpp
     i_renderable.h
-    i_renderable.cpp
     i_thing.h
     i_thing.cpp
     main.cpp
+    map.h
+    map.cpp
+    object.h
+    object.cpp
     renderer.h
     renderer.cpp
     slime.cpp
@@ -36,7 +42,7 @@ target_sources(
     PRIVATE
 )
 
-target_link_libraries (
+target_link_libraries(
     ${PROJECT_ID}
     PRIVATE
         fmt::fmt
@@ -45,8 +51,15 @@ target_link_libraries (
         stb::stb
 )
 
-target_compile_definitions (
+target_compile_definitions(
     ${PROJECT_ID}
     PRIVATE
         -DPROJECT_NAME="${PROJECT_NAME}"
+)
+
+add_custom_command(
+    TARGET
+        ${PROJECT_ID}
+    POST_BUILD COMMAND
+        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/dist $<TARGET_FILE_DIR:${PROJECT_ID}>/dist
 )

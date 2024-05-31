@@ -73,4 +73,6 @@ public:
 private:
     SDL_Renderer      *m_renderer{ nullptr };
     std::vector<Image> images;
+
+    SDL_Texture *m_backbuffer{ nullptr };
 };

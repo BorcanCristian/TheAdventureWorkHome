@@ -1,6 +1,7 @@
 #include "slime.h"
 #include "codes.h"
 #include "game.h"
+#include "map.h"
 
 #include <resources.h>
 
@@ -29,23 +30,18 @@ Slime::Slime(Renderer &renderer, Sound &sound)
   , m_distribution{ 0, 10 }
   , m_sound{ sound }
 {
-    scale_x() *= 2.F;
-    scale_y() *= 2.F;
-
-    x() = 100.F;
-    y() = 100.F;
-
     width()  = m_sprite.width() / MAX_FRAMES;
     height() = m_sprite.height() / MAX_FRAMES;
 
-    set_collision_box({ 7, 6, 19, 18 });
+    set_collision_box({ 5, 5, 22, 21 });
+    set_aggro_area({ -22, -18, 76, 72 });
 
     m_sprite.set_sprite_set(SpriteSet::IdleRight);
     m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - IDLE_FRAMES);
     m_sprite.set_frame_time(std::chrono::milliseconds{ 100 });
 
     m_attack_sound_id =
-        sound.load_sample(resource__07_human_atk_sword_1, resource__07_human_atk_sword_1_size);
+        sound.load_sample(resource__04_slime_attack, resource__04_slime_attack_size);
 }
 
 void Slime::attack()
@@ -71,9 +67,58 @@ void Slime::attack()
 
 void Slime::update(Game &game, float attenuation)
 {
-    if (m_is_attacking && m_sprite.current_frame() == ATTACK_FRAMES - 1)
+    if (m_is_attacking)
     {
-        m_is_attacking = false;
+        if (m_sprite.current_frame() == ATTACK_FRAMES - 1)
+        {
+            m_is_attacking = false;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else if (has_aggro())
+    {
+        const auto *aggro_for = dynamic_cast<ICollidable *>(aggravated_by());
+        if (aggro_for == nullptr)
+        {
+            return;
+        }
+
+        if (!is_colliding(*aggro_for))
+        {
+            const auto *aggravated_by = this->aggravated_by();
+
+            if (aggravated_by->x() < x())
+            {
+                x() -= m_speed * attenuation;
+                m_orientation = Orientation::Left;
+            }
+            else
+            {
+                x() += m_speed * attenuation;
+                m_orientation = Orientation::Right;
+            }
+
+            if (aggravated_by->y() < y())
+            {
+                y() -= m_speed * attenuation;
+            }
+            else
+            {
+                y() += m_speed * attenuation;
+            }
+
+            m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
+            m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
+        }
+        else
+        {
+            attack();
+        }
+
+        return;
     }
 
     const auto now = std::chrono::steady_clock::now();
@@ -114,7 +159,7 @@ void Slime::update(Game &game, float attenuation)
         switch (m_direction)
         {
         case Direction::Up: {
-            y() -= 120.F * attenuation;
+            y() -= m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
 
@@ -122,7 +167,7 @@ void Slime::update(Game &game, float attenuation)
             break;
         }
         case Direction::Down: {
-            y() += 120.F * attenuation;
+            y() += m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, m_orientation == Orientation::Left);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
 
@@ -130,7 +175,7 @@ void Slime::update(Game &game, float attenuation)
             break;
         }
         case Direction::Left: {
-            x() -= 120.F * attenuation;
+            x() -= m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight, true);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
             m_orientation = Orientation::Left;
@@ -139,7 +184,7 @@ void Slime::update(Game &game, float attenuation)
             break;
         }
         case Direction::Right: {
-            x() += 120.F * attenuation;
+            x() += m_speed * attenuation;
             m_sprite.set_sprite_set(SpriteSet::JumpingRight);
             m_sprite.set_total_frames(MAX_FRAMES, MAX_FRAMES - JUMP_FRAMES);
             m_orientation = Orientation::Right;
@@ -172,13 +217,35 @@ void Slime::update(Game &game, float attenuation)
     }
 }
 
-void Slime::render(Renderer &renderer)
+void Slime::render(Renderer &renderer, const Map::Viewport &viewport)
 {
-    m_sprite.x() = x();
-    m_sprite.y() = y();
+    // render_aggro_area(renderer, viewport);
+    m_sprite.render(renderer, x() - viewport.x, y() - viewport.y);
+}
 
-    m_sprite.scale_x() = scale_x();
-    m_sprite.scale_y() = scale_y();
+void Slime::take_damage(float damage)
+{
+    m_health -= damage;
 
-    m_sprite.render(renderer);
+    std::cout << "Slime took " << damage << " damage. Health: " << m_health << std::endl;
+
+    if (m_health <= 0.F)
+    {
+        m_should_be_destroyed = true;
+    }
+}
+
+bool Slime::should_be_destroyed()
+{
+    return m_should_be_destroyed;
+}
+
+bool Slime::is_attacking() const
+{
+    return m_is_attacking;
+}
+
+float Slime::attack_power() const
+{
+    return 0.5F;
 }

@@ -4,6 +4,8 @@ set (
         "res/characters/player.png"
         "res/characters/slime.png"
         "res/objects/rock_in_water_06.png"
+        "res/objects/bush_01.png"
+        "res/objects/tree_01.png"
         "res/sfx/01_chest_open_1.mp3"
         "res/sfx/02_chest_close_1.mp3"
         "res/sfx/05_door_open_1.mp3"
@@ -13,7 +15,7 @@ set (
         "res/sfx/26_sword_hit_1.mp3"
         "res/sfx/26_sword_hit_2.mp3"
         "res/sfx/26_sword_hit_3.mp3"
-        "res/tilesets/grass.png"
+        "res/sfx/04_slime_attack.mp3"
 )
 
 set (RES_FIXED_PATH)

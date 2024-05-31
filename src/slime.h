@@ -2,7 +2,10 @@
 
 #include "animated_sprite.h"
 #include "events.h"
+#include "i_aggravatable.h"
+#include "i_attacker.h"
 #include "i_collidable.h"
+#include "i_destroyable.h"
 #include "i_renderable.h"
 #include "sound.h"
 
@@ -11,8 +14,12 @@
 class Game;
 
 class Slime
-  : public IRenderable
+  : public IThing
+  , public IRenderable
   , public ICollidable
+  , public IDestroyable
+  , public IAttacker
+  , public IAggravatable
 {
 private:
     enum class Orientation
@@ -35,7 +42,13 @@ public:
     void attack();
 
     void update(Game &game, float attenuation = 1.F) override;
-    void render(Renderer &renderer) override;
+    void render(Renderer &renderer, const Map::Viewport &viewport) override;
+
+    void take_damage(float damage) override;
+    bool should_be_destroyed() override;
+
+    bool  is_attacking() const override;
+    float attack_power() const override;
 
 private:
     AnimatedSprite m_sprite;
@@ -50,6 +63,10 @@ private:
     };
     std::mt19937                    m_generator;
     std::uniform_int_distribution<> m_distribution;
+
+    float m_health{ 3.F };
+    float m_speed{ 65.F };
+    bool  m_should_be_destroyed{ false };
 
     Sound &m_sound;
 };

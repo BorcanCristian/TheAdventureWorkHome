@@ -1,8 +1,12 @@
 #include "hero.h"
 #include "codes.h"
 #include "game.h"
+#include "map.h"
 
 #include <resources.h>
+
+#include <algorithm>
+#include <iostream>
 
 enum SpriteSet
 {
@@ -20,15 +24,12 @@ enum SpriteSet
 
 static constexpr std::int32_t MAX_FRAMES            = 6;
 static constexpr std::int32_t ATTACK_FRAMES         = 4;
-static constexpr Rect         DEFAULT_COLLISION_BOX = { 15, 30, 19, 14 };
+static constexpr Rect         DEFAULT_COLLISION_BOX = { 15, 27, 18, 18 };
 
 Hero::Hero(Renderer &renderer, Sound &sound)
   : m_sprite{ resource_player, resource_player_size, renderer }
   , m_sound{ sound }
 {
-    scale_x() *= 2.F;
-    scale_y() *= 2.F;
-
     width()  = m_sprite.width() / MAX_FRAMES;
     height() = m_sprite.height() / MAX_FRAMES;
 
@@ -44,6 +45,11 @@ Hero::Hero(Renderer &renderer, Sound &sound)
 
 void Hero::attack()
 {
+    if (m_is_attacking && m_sprite.current_frame() <= ATTACK_FRAMES - 2)
+    {
+        return;
+    }
+
     m_is_attacking = true;
 
     switch (m_orientation)
@@ -93,19 +99,41 @@ void Hero::attack()
     m_sound.play_sample(m_attack_sound_id);
 }
 
+float Hero::speed() const
+{
+    return m_speed;
+}
+
+bool Hero::is_attacking() const
+{
+    return m_is_attacking && m_sprite.current_frame() >= ATTACK_FRAMES / 2;
+}
+
+float Hero::attack_power() const
+{
+    return 1.F;
+}
+
 void Hero::update(Game &game, float attenuation)
 {
-    if (m_is_attacking && m_sprite.current_frame() == ATTACK_FRAMES - 1)
+    if (m_is_attacking)
     {
-        m_is_attacking = false;
-        set_collision_box(DEFAULT_COLLISION_BOX);
+        if (m_sprite.current_frame() == ATTACK_FRAMES - 1)
+        {
+            m_is_attacking = false;
+            set_collision_box(DEFAULT_COLLISION_BOX);
+        }
+        else
+        {
+            return;
+        }
     }
 
     m_is_moving = false;
 
     if (game.is_key_pressed(KeyCode::Up))
     {
-        y() -= 120.F * attenuation;
+        y() -= m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningUp);
         m_orientation = Orientation::Up;
 
@@ -114,7 +142,7 @@ void Hero::update(Game &game, float attenuation)
 
     if (game.is_key_pressed(KeyCode::Down))
     {
-        y() += 120.F * attenuation;
+        y() += m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningDown);
         m_orientation = Orientation::Down;
 
@@ -123,7 +151,7 @@ void Hero::update(Game &game, float attenuation)
 
     if (game.is_key_pressed(KeyCode::Left))
     {
-        x() -= 120.F * attenuation;
+        x() -= m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight, true);
         m_orientation = Orientation::Left;
 
@@ -132,7 +160,7 @@ void Hero::update(Game &game, float attenuation)
 
     if (game.is_key_pressed(KeyCode::Right))
     {
-        x() += 120.F * attenuation;
+        x() += m_speed * attenuation;
         m_sprite.set_sprite_set(SpriteSet::RunningRight);
         m_orientation = Orientation::Right;
 
@@ -166,20 +194,16 @@ void Hero::update(Game &game, float attenuation)
     }
 }
 
-void Hero::render(Renderer &renderer)
+void Hero::render(Renderer &renderer, const Map::Viewport &viewport)
 {
-    m_sprite.x() = x();
-    m_sprite.y() = y();
-
-    m_sprite.scale_x() = scale_x();
-    m_sprite.scale_y() = scale_y();
-
-    m_sprite.render(renderer);
+    //    renderer.set_color({ 255, 255, 255, 255 });
+    //    renderer.draw_rect(x() - viewport.x, y() - viewport.y, width(), height());
+    m_sprite.render(renderer, x() - viewport.x, y() - viewport.y);
 }
 
 void Hero::on_key_pressed(const KeyPressEvent &event)
 {
-    if (event.key_code == KeyCode::Space)
+    if (event.key_code == KeyCode::Space && !event.repeat)
     {
         attack();
     }
@@ -187,3 +211,14 @@ void Hero::on_key_pressed(const KeyPressEvent &event)
 
 void Hero::on_key_released(const KeyReleaseEvent &event)
 {}
+
+void Hero::take_damage(float damage)
+{
+    std::cout << "Hero took " << damage << " damage. Health: " << m_health << std::endl;
+    m_health -= damage;
+}
+
+bool Hero::should_be_destroyed()
+{
+    return m_health <= 0.F;
+}

@@ -4,13 +4,17 @@
 #include "codes.h"
 #include "hero.h"
 #include "i_thing.h"
+#include "map.h"
 #include "slime.h"
 #include "sound.h"
 #include "sprite.h"
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <random>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class Renderer;
@@ -64,8 +68,14 @@ public:
     bool is_key_pressed(KeyCode key_code) const;
 
 private:
+    void        try_attack(int32_t thing_id_1, int32_t thing_id_2);
+    static void fixup_collisions(ICollidable *lhs, ICollidable *rhs) noexcept;
+
+private:
     const std::uint8_t *const m_mouse_button_states;
     const std::uint8_t *const m_keyboard_state;
+
+    std::optional<Map> m_map;
 
     Sound m_sound;
 
@@ -75,8 +85,8 @@ private:
 
     std::int32_t m_bg_music_id{ -1 };
 
-    std::vector<std::unique_ptr<IThing>> m_things;
-    std::vector<IRenderable *>           m_renderables;
-    std::vector<ICollidable *>           m_collidables;
-    std::vector<IInputHandler *>         m_input_handlers;
+    Hero *m_hero{ nullptr };
+
+    std::unordered_map<std::int32_t, std::unique_ptr<IThing>>          m_things;
+    std::unordered_map<std::int32_t, std::unordered_set<std::int32_t>> m_landed_attacks;
 };

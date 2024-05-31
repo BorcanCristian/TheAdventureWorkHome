@@ -39,27 +39,20 @@ public:
     //     s2 = std::move(s1);
     Sprite &operator=(Sprite &&) = default;
 
-    virtual void render(Renderer &renderer);
-
-    float &x();
-    float &y();
+    virtual void render(Renderer &renderer, float x, float y);
 
     float width() const;
     float height() const;
 
-    float &scale_x();
-    float &scale_y();
-
 protected:
+    inline std::int32_t image_id() const
+    {
+        return m_image_id;
+    }
+
+private:
     std::int32_t m_width;
     std::int32_t m_height;
 
     std::int32_t m_image_id;
-
-private:
-    float m_pos_x{ 0 };
-    float m_pos_y{ 0 };
-
-    float m_scale_x{ 1 };
-    float m_scale_y{ 1 };
 };

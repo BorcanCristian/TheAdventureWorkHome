@@ -8,29 +8,20 @@ Sprite::Sprite(const std::uint8_t *data, std::size_t size, Renderer &renderer)
   , m_image_id{ renderer.load_image(data, size, &m_width, &m_height) }
 {}
 
-void Sprite::render(Renderer &renderer)
+void Sprite::render(Renderer &renderer, float x, float y)
 {
-    renderer.draw_image(m_image_id,
-                        0,
-                        0,
-                        static_cast<std::int32_t>(std::round(m_pos_x)),
-                        static_cast<std::int32_t>(std::round(m_pos_y)),
-                        false,
-                        false,
-                        m_width,
-                        m_height,
-                        static_cast<std::int32_t>(std::round(m_width * m_scale_x)),
-                        static_cast<std::int32_t>(std::round(m_height * m_scale_y)));
-}
-
-float &Sprite::x()
-{
-    return m_pos_x;
-}
-
-float &Sprite::y()
-{
-    return m_pos_y;
+    renderer.draw_image(
+        m_image_id,
+        0,
+        0,
+        static_cast<std::int32_t>(std::round(x + static_cast<float>(m_width) / 2.F)),
+        static_cast<std::int32_t>(std::round(y + static_cast<float>(m_height) / 2.F)),
+        false,
+        false,
+        m_width,
+        m_height,
+        m_width,
+        m_height);
 }
 
 float Sprite::width() const
@@ -41,14 +32,4 @@ float Sprite::width() const
 float Sprite::height() const
 {
     return static_cast<float>(m_height);
-}
-
-float &Sprite::scale_x()
-{
-    return m_scale_x;
-}
-
-float &Sprite::scale_y()
-{
-    return m_scale_y;
 }
